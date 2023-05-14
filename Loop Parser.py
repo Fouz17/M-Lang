@@ -3,7 +3,7 @@ import re
 
 RULES = {
     "<var-decl>": ["<varname><vars>-><DT><assign>;"],
-    "<varname>": [r'^@[a-zA-Z_]+[0-9]*[a-zA-Z_]*$'],
+    "<varname>": [r'^@[a-zA-Z_]+[0-9]*[a-zA-Z_]+$'],
     "<vars>": [",<varname>", None],
     "<DT>": ["str", "num"],
     "<assign>": [r"^=[a-zA-Z0-9]+", None],
@@ -101,8 +101,8 @@ class Parser:
 
 
 # Usage example
-program = '@x1_ ,@x2_,@x3_ -> str = "5sadasdas oi324in sd,c9 79 ";;'
+program = 'loop(@x1_ -> num = 5,5,1){}'
 tokens = tokenize(program)
-parser = Parser(tokens)
-result = parser.parse()
+# parser = Parser(tokens)
+# result = parser.parse()
 # print(result)  # Output: ('x', 'int')
