@@ -12,7 +12,7 @@ RULES = {
 
 def tokenize(program):
     tokens = re.findall(
-        r'@[a-zA-Z_]+[0-9]*[a-zA-Z_]*|[a-zA-Z_][a-zA-Z0-9_]*|->|".*"|;|\S', program)
+        r'@[a-zA-Z_]+[0-9]*[a-zA-Z_]*|[a-zA-Z_][a-zA-Z0-9_]*|[0-9]+|->|".*"|;|\S', program)
     print(tokens)
     return tokens
 
