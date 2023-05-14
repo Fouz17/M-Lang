@@ -9,6 +9,7 @@ RULES = {
     "<assign>": [r"^=[a-zA-Z0-9]+", None],
 }
 
+
 def tokenize(program):
     tokens = re.findall(
         r'@[a-zA-Z_]+[0-9]*[a-zA-Z_]+|[a-zA-Z_][a-zA-Z0-9_]*|->|".*"|;|\S', program)
@@ -22,6 +23,7 @@ class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.current_token = None
+        self.variableStack = set({})
         self.token_index = -1
         self.advance()
 
@@ -34,20 +36,26 @@ class Parser:
 
     def retreat(self):
         self.token_index -= 1
-        if self.token_index < len(self.tokens):
+        if self.token_index > 0:
             self.current_token = self.tokens[self.token_index]
         else:
             self.current_token = None
 
-
     def parse(self):
-        if (self.current_token[0] == "@"):
-            return self.declaration()
-
+        while(self.current_token):
+            if(self.current_token == ";"):
+                self.advance()
+            elif (self.current_token[0] == "@"):
+                self.declaration()
+            else:
+                raise SyntaxError("Invalid Identifier")
     def declaration(self):
         Type = None
-        while (self.current_token):
+        Terminate = False
+        while (not Terminate):
             if re.match(RULES["<varname>"][0], self.current_token) is not None:
+                self.checkForDuplicateVariables()
+                self.variableStack.add(self.current_token)
                 self.advance()
                 if self.current_token == ',':
                     self.advance()
@@ -59,11 +67,13 @@ class Parser:
                         self.advance()
                         if self.checkVariableAssignment(Type):
                             self.advance()
-                            if(self.current_token != ';'):
+                            if (self.current_token != ';'):
                                 raise SyntaxError("Missing semi colon")
                             self.advance()
+                            Terminate = True
                         else:
-                            raise SyntaxError(f"Can not assign the value to type {Type}")
+                            raise SyntaxError(
+                                f"Can not assign the value to type {Type}")
                     else:
                         raise SyntaxError("Invalid data type")
                 else:
@@ -80,21 +90,18 @@ class Parser:
         self.advance()
         NewToken += self.current_token
         if (DT == "str"):
-            return re.match(r'^=\s*".*"$',NewToken) is not None
+            return re.match(r'^=\s*".*"$', NewToken) is not None
         else:
-            return re.match(r'^=\s*[0-9]*\s*$',NewToken) is not None
+            return re.match(r'^=\s*[0-9]*\s*$', NewToken) is not None
 
-    def variable_type(self):
-        if self.current_token in ['int', 'float', 'string']:
-            variable_type = self.current_token
-            self.advance()
-            return variable_type
-        else:
-            raise SyntaxError("Invalid variable type")
+    def checkForDuplicateVariables(self):
+        if (self.current_token in self.variableStack):
+            raise NameError(
+                f"variable {self.current_token } has already been declared.")
 
 
 # Usage example
-program = '@x1_ ,@x2_,@x3_ -> str = "5sadasdas oi324in sd,c9 79 ";'
+program = '@x1_ ,@x2_,@x3_ -> str = "5sadasdas oi324in sd,c9 79 ";;'
 tokens = tokenize(program)
 parser = Parser(tokens)
 result = parser.parse()
