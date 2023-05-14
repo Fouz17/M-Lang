@@ -7,6 +7,10 @@ RULES = {
     "<vars>": [",<varname>", None],
     "<DT>": ["str", "num"],
     "<assign>": [r"^=[a-zA-Z0-9]+", None],
+    "<loop-decl>": ["loop(<init>,N1,N2)"],
+    "<init>": ["varname-><L-DT><L-assign>"],
+    "<L-DT>": ["num"],
+    "<L-assign>": [r"^=[0-9]+"],
 }
 
 
