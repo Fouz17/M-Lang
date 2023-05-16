@@ -77,6 +77,8 @@ class Parser:
 
     def loopStatements(self):
         while (self.current_token != '}'):
+            if(self.current_token == None and len(self.ScopeStack) > 0):
+                raise SyntaxError("Missing '}'")
             self.ScopeStack.append(self.current_token)
             self.advance()
             self.parse()

@@ -3,7 +3,7 @@ from Tokenizer import Tokenizer
 
 program = open("./code.m",'r').read()
 
-# program = "@x1 -> num = +1;/*loop(@x2 -> num = 50,0,++1){    @x3 -> num = -1;loop(@x4 -> num = 50,0,1){@x5 -> num = -1;}  @x6 -> num = +1;}*/"
+# program = "loop(@x2 -> num = 50,1,-5){\n//}\n"
 
 lexer = Tokenizer(program)
 tokens = lexer.tokenize()
