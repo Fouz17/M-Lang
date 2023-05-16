@@ -1,7 +1,11 @@
 from Parser import Parser
 from Tokenizer import Tokenizer
 
-program = open("./code.m",'r').read()
+path = "./code.m"
+# print(__debug__)
+# if(__debug__):
+#     path = "./final implementation/code.m"
+program = open(path,'r').read()
 
 # program = "loop(@x2 -> num = 50,1,-5){\n//}\n"
 

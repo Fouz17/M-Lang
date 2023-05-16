@@ -15,14 +15,18 @@ RULES = {
 }
 
 # Parser implementation
+
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.current_token = None
-        self.variableStack = set({})
+        # self.variableStack = set({})
         self.token_index = -1
         self.advance()
         self.ScopeStack = []
+        self.GenericScoping = []
+        self.popCount = []
 
     def advance(self):
         self.token_index += 1
@@ -48,6 +52,10 @@ class Parser:
                 self.advance()
                 self.parseLoop()
             elif (self.current_token == '}' and len(self.ScopeStack) > 0):
+                while (self.GenericScoping.pop() != '{'):
+                    pass
+                for i in range(self.popCount.pop()):
+                    self.GenericScoping.pop()
                 self.ScopeStack.pop()
                 break
             else:
@@ -77,9 +85,10 @@ class Parser:
 
     def loopStatements(self):
         while (self.current_token != '}'):
-            if(self.current_token == None and len(self.ScopeStack) > 0):
+            if (self.current_token == None and len(self.ScopeStack) > 0):
                 raise SyntaxError("Missing '}'")
             self.ScopeStack.append(self.current_token)
+            self.GenericScoping.append(self.current_token)
             self.advance()
             self.parse()
 
@@ -97,8 +106,9 @@ class Parser:
     def checkLoopInitialization(self):
         if re.match(RULES["<varname>"][0], self.current_token) is not None:
             self.checkForDuplicateVariables()
-            self.variableStack.add(self.current_token)
-            self.advance()
+            self.popCount.append(1)
+            # self.variableStack.add(self.current_token)
+            # self.advance()
             if self.current_token == ',':
                 raise SyntaxError("Invalid Identifier")
             elif self.current_token == '->':
@@ -146,8 +156,8 @@ class Parser:
         while (not Terminate):
             if re.match(RULES["<varname>"][0], self.current_token) is not None:
                 self.checkForDuplicateVariables()
-                self.variableStack.add(self.current_token)
-                self.advance()
+                # self.variableStack.add(self.current_token)
+                # self.advance()
                 if self.current_token == ',':
                     self.advance()
                     continue
@@ -174,6 +184,8 @@ class Parser:
         print("VALID DECLARATION")
 
     def checkForDuplicateVariables(self):
-        if (self.current_token in self.variableStack):
+        if (self.current_token in self.GenericScoping):
             raise NameError(
-                f"variable {self.current_token } has already been declared.")
+                f"variable {self.current_token} has already been declared.")
+        self.GenericScoping.append(self.current_token)
+        self.advance()
