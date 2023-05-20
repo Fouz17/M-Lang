@@ -48,6 +48,8 @@ class Parser:
                 self.advance()
             elif (self.current_token[0] == "@"):
                 self.declaration()
+            elif (self.current_token[0] == "$"):
+                self.parseFunction()
             elif (self.current_token == "loop"):
                 self.advance()
                 self.parseLoop()
@@ -61,29 +63,64 @@ class Parser:
             else:
                 raise SyntaxError(f"Invalid Identifier {self.current_token}")
 
-    def parseLoop(self):
-        Terminate = False
-        while (not Terminate):
-            if self.current_token == "(":
-                self.advance()
-                self.checkLoopInitialization()
-                NewToken = self.combineLoopCondsAndINCDEC()
-                if (re.match(r'^[-+]*[0-9]+,[-+]*[0-9]+[)]$', NewToken)):
-                    if (self.current_token == '{'):
-                        self.loopStatements()
-                        self.advance()
-                        Terminate = True
-                    else:
-                        raise SyntaxError(
-                            "Unexpected identifier  Expected '{' ")
-                else:
-                    raise SyntaxError("Unexpected identifier")
+    def parseFunction(self):
+        if(re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$',self.current_token) is not None):
+            self.checkForDuplicateFunctions()
+            # self.advance()
+            if(self.current_token != '('):
+                raise SyntaxError("Unexpected Identifier")
             else:
-                raise SyntaxError(
-                    f"Invalid Identifier Expected '(' given '{self.current_token}'")
+                self.advance()
+                self.checkFunctionParams()
+                if(self.current_token == '{'):
+                    self.BlockStatements()
+                    self.advance()
+        else:
+            raise SyntaxError("Function Naming Rule Violation")
+        print("VALID FUNCTION")
+
+    def checkFunctionParams(self):
+        popCount = 0
+        while self.current_token != ')':
+            if(self.current_token == ','):
+                self.advance()
+            paramToken = self.current_token
+            self.advance()
+            paramToken += self.current_token
+            self.advance()
+            paramToken += self.current_token
+            if(re.match(r"@[a-zA-Z_]+[0-9]*[a-zA-Z_]*->[num|str]",paramToken) is not None):
+                self.retreat()                
+                self.retreat()                
+                self.checkForDuplicateVariables()
+                self.advance()
+                self.advance()
+                popCount += 1
+            else:
+                raise SyntaxError("Invalid Identifier")
+        self.popCount.append(popCount)
+        self.advance()   
+
+    def parseLoop(self):
+        if self.current_token == "(":
+            self.advance()
+            self.checkLoopInitialization()
+            NewToken = self.combineLoopCondsAndINCDEC()
+            if (re.match(r'^[-+]*[0-9]+,[-+]*[0-9]+[)]$', NewToken)):
+                if (self.current_token == '{'):
+                    self.BlockStatements()
+                    self.advance()
+                else:
+                    raise SyntaxError(
+                        "Unexpected identifier  Expected '{' ")
+            else:
+                raise SyntaxError("Unexpected identifier")
+        else:
+            raise SyntaxError(
+                f"Invalid Identifier Expected '(' given '{self.current_token}'")
         print("VALID LOOP")
 
-    def loopStatements(self):
+    def BlockStatements(self):
         while (self.current_token != '}'):
             if (self.current_token == None and len(self.ScopeStack) > 0):
                 raise SyntaxError("Missing '}'")
@@ -187,5 +224,12 @@ class Parser:
         if (self.current_token in self.GenericScoping):
             raise NameError(
                 f"variable {self.current_token} has already been declared.")
+        self.GenericScoping.append(self.current_token)
+        self.advance()
+
+    def checkForDuplicateFunctions(self):
+        if (self.current_token in self.GenericScoping):
+            raise NameError(
+                f"function {self.current_token} has already been declared.")
         self.GenericScoping.append(self.current_token)
         self.advance()

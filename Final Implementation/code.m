@@ -2,6 +2,7 @@ loop(@x1 -> num = 50,1,+5){
     @x2 -> str = "32";
 }
 @x1 -> num = 98;
-// @x1 -> str = "98";
 @x2 -> str = "32";
-
+@x3 -> str = "98";
+$func1_(@x ->num,@xx -> str){}
+$func2_(@x ->num,@xx -> str){}

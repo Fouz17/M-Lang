@@ -34,7 +34,7 @@ class Tokenizer:
     def tokenize(self):
         while (self.currentChar is not None):
 
-            if(self.currentChar == " "):
+            if (self.currentChar == " "):
                 self.advance()
                 continue
 
@@ -48,17 +48,17 @@ class Tokenizer:
                 self.advance()
                 self.advance()
                 continue
-            
-            if(self.currentChar in '-+' and re.match(r"[0-9]$",self.nextChar)):
+
+            if (self.currentChar in '-+' and re.match(r"[0-9]$", self.nextChar)):
                 numericalToken = self.currentChar
                 self.advance()
                 numericalToken += self.currentChar
-                while(re.match(r"[-+][0-9]+$",numericalToken)):
+                while (re.match(r"[-+][0-9]+$", numericalToken)):
                     self.advance()
                     numericalToken += self.currentChar
                 self.tokens.append(numericalToken[:len(numericalToken)-1])
                 continue
-            elif(self.currentChar in "+-"):
+            elif (self.currentChar in "+-"):
                 self.tokens.append(self.currentChar)
                 self.advance()
                 continue
@@ -83,7 +83,7 @@ class Tokenizer:
             if (self.currentChar == '/' and self.nextChar == '*'):
                 self.advance()
                 self.advance()
-                while (self.currentChar != '*' and self.nextChar != '/'):
+                while (not (self.currentChar == '*' and self.nextChar == '/')):
                     self.advance()
                 self.advance()
                 self.advance()
@@ -98,20 +98,34 @@ class Tokenizer:
                     varToken += self.currentChar
                 self.tokens.append(varToken[:len(varToken)-1])
                 continue
-            elif(self.currentChar == '@' and not(re.match(r"@[a-zA-Z_]+$", self.currentChar+self.nextChar))):
+            elif (self.currentChar == '@' and not (re.match(r"@[a-zA-Z_]+$", self.currentChar+self.nextChar))):
                 self.tokens.append(self.currentChar)
                 self.advance()
                 continue
 
-            if(self.currentChar == '\n'):
+            if (self.currentChar == '$' and (re.match(r"[$][a-zA-Z_]+$", self.currentChar+self.nextChar))):
+                varToken = self.currentChar
+                self.advance()
+                varToken += self.currentChar
+                while (re.match(r"[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$", varToken)):
+                    self.advance()
+                    varToken += self.currentChar
+                self.tokens.append(varToken[:len(varToken)-1])
+                continue
+            elif (self.currentChar == '$' and not (re.match(r"[$][a-zA-Z_]+$", self.currentChar+self.nextChar))):
+                self.tokens.append(self.currentChar)
                 self.advance()
                 continue
 
-            if(self.currentChar != ' '):
+            if (self.currentChar == '\n'):
+                self.advance()
+                continue
+
+            if (self.currentChar != ' '):
                 randomString = self.currentChar
                 self.advance()
-                while(self.currentChar != ' '):
-                    if(self.currentChar in "{(,)}=;-@"):
+                while (self.currentChar != ' '):
+                    if (self.currentChar in "{(,)}=;-@"):
                         self.retreat()
                         break
                     randomString += self.currentChar
