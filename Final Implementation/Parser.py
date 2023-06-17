@@ -64,34 +64,38 @@ class Parser:
                 raise SyntaxError(f"Invalid Identifier {self.current_token}")
 
     def parseFunction(self):
-        if(re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$',self.current_token) is not None):
+        if (re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$', self.current_token) is not None):
             self.checkForDuplicateFunctions()
             # self.advance()
-            if(self.current_token != '('):
+            if (self.current_token != '('):
                 raise SyntaxError("Unexpected Identifier")
             else:
                 self.advance()
                 self.checkFunctionParams()
-                if(self.current_token == '{'):
+                self.checkFunctionType()
+                if (self.current_token == '{'):
                     self.BlockStatements()
                     self.advance()
         else:
             raise SyntaxError("Function Naming Rule Violation")
-        print("VALID FUNCTION")
+        print("\033[92m"+"VALID FUNCTION"+"\033[0m")
 
     def checkFunctionParams(self):
         popCount = 0
+
+        if (self.current_token == ','):
+            raise SyntaxError("Invalid Identifier")
         while self.current_token != ')':
-            if(self.current_token == ','):
+            if (self.current_token == ','):
                 self.advance()
             paramToken = self.current_token
             self.advance()
             paramToken += self.current_token
             self.advance()
             paramToken += self.current_token
-            if(re.match(r"@[a-zA-Z_]+[0-9]*[a-zA-Z_]*->[num|str]",paramToken) is not None):
-                self.retreat()                
-                self.retreat()                
+            if (re.match(r"@[a-zA-Z_]+[0-9]*[a-zA-Z_]*->[num|str]", paramToken) is not None):
+                self.retreat()
+                self.retreat()
                 self.checkForDuplicateVariables()
                 self.advance()
                 self.advance()
@@ -99,7 +103,16 @@ class Parser:
             else:
                 raise SyntaxError("Invalid Identifier")
         self.popCount.append(popCount)
-        self.advance()   
+        self.advance()
+
+    def checkFunctionType(self):
+        if (self.current_token == '->'):
+            self.advance()
+            if self.current_token not in ['num', 'str']:
+                raise TypeError("Return type of function not defined")
+        else:
+            raise SyntaxError("Invalid Identifier")
+        self.advance()
 
     def parseLoop(self):
         if self.current_token == "(":
@@ -118,7 +131,7 @@ class Parser:
         else:
             raise SyntaxError(
                 f"Invalid Identifier Expected '(' given '{self.current_token}'")
-        print("VALID LOOP")
+        print("\033[92m"+"VALID LOOP"+"\033[0m")
 
     def BlockStatements(self):
         while (self.current_token != '}'):
@@ -218,7 +231,7 @@ class Parser:
                     raise SyntaxError("Invalid Identifier")
             else:
                 raise SyntaxError("Variable naming voilation")
-        print("VALID DECLARATION")
+        print("\033[92m"+"VALID DECLARATION"+"\033[0m")
 
     def checkForDuplicateVariables(self):
         if (self.current_token in self.GenericScoping):
