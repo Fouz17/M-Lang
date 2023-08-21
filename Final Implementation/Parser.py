@@ -21,6 +21,8 @@ class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.current_token = None
+        self.current_line = None
+        self.current_col = None
         # self.variableStack = set({})
         self.token_index = -1
         self.advance()
@@ -31,7 +33,9 @@ class Parser:
     def advance(self):
         self.token_index += 1
         if self.token_index < len(self.tokens):
-            self.current_token = self.tokens[self.token_index]
+            self.current_token = self.tokens[self.token_index]["Token"]
+            self.current_line = self.tokens[self.token_index]["Line"]
+            self.current_col = self.tokens[self.token_index]["Col"]
         else:
             self.current_token = None
 
@@ -61,7 +65,8 @@ class Parser:
                 self.ScopeStack.pop()
                 break
             else:
-                raise SyntaxError(f"Invalid Identifier {self.current_token}")
+                raise SyntaxError(
+                    f"Invalid Identifier at line {self.current_line}: col {self.current_col} - {self.current_token}")
 
     def parseFunction(self):
         if (re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$', self.current_token) is not None):
@@ -84,7 +89,8 @@ class Parser:
         popCount = 0
 
         if (self.current_token == ','):
-            raise SyntaxError("Invalid Identifier")
+            raise SyntaxError(
+                f"Invalid Identifier at line {self.current_line}: col {self.current_col}")
         while self.current_token != ')':
             if (self.current_token == ','):
                 self.advance()
@@ -101,7 +107,8 @@ class Parser:
                 self.advance()
                 popCount += 1
             else:
-                raise SyntaxError("Invalid Identifier")
+                raise SyntaxError(
+                    f"Invalid Identifier at line {self.current_line}: col {self.current_col}")
         self.popCount.append(popCount)
         self.advance()
 
@@ -111,7 +118,8 @@ class Parser:
             if self.current_token not in ['num', 'str']:
                 raise TypeError("Return type of function not defined")
         else:
-            raise SyntaxError("Invalid Identifier")
+            raise SyntaxError(
+                f"Invalid Identifier at line {self.current_line}: col {self.current_col}")
         self.advance()
 
     def parseLoop(self):
@@ -130,7 +138,7 @@ class Parser:
                 raise SyntaxError("Unexpected identifier")
         else:
             raise SyntaxError(
-                f"Invalid Identifier Expected '(' given '{self.current_token}'")
+                f"Invalid Identifier at line {self.current_line}: col {self.current_col} Expected '(' given '{self.current_token}'")
         print("\033[92m"+"VALID LOOP"+"\033[0m")
 
     def BlockStatements(self):
@@ -160,7 +168,8 @@ class Parser:
             # self.variableStack.add(self.current_token)
             # self.advance()
             if self.current_token == ',':
-                raise SyntaxError("Invalid Identifier")
+                raise SyntaxError(
+                    "Invalid Identifier at line {self.current_line}: col {self.current_col}")
             elif self.current_token == '->':
                 self.advance()
                 if (self.current_token == "num"):
@@ -181,7 +190,8 @@ class Parser:
                     raise TypeError(
                         "Invalid data type in loop initialization expected 'num'")
             else:
-                raise SyntaxError("Invalid Identifier")
+                raise SyntaxError(
+                    f"Invalid Identifier at line {self.current_line}: col {self.current_col}")
         else:
             raise SyntaxError("Variable naming voilation")
 
@@ -228,7 +238,8 @@ class Parser:
                     else:
                         raise SyntaxError("Invalid data type")
                 else:
-                    raise SyntaxError("Invalid Identifier")
+                    raise SyntaxError(
+                        f"Invalid Identifier at line {self.current_line}: col {self.current_col}")
             else:
                 raise SyntaxError("Variable naming voilation")
         print("\033[92m"+"VALID DECLARATION"+"\033[0m")

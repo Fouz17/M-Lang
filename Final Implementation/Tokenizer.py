@@ -6,11 +6,20 @@ class Tokenizer:
         self.source = string
         self.current = 0
         self.tokens = []
+        self.tokenInfo = []
         self.currentChar = self.source[0]
         self.nextChar = self.source[1]
+        self.line = 1
+        self.col = 1
 
     def advance(self):
         self.current += 1
+        if (self.currentChar == "\n"):
+            self.col = 1
+            self.line += 1
+        else:  # (self.currentChar == " "):
+            self.col += 1
+
         if (self.current < len(self.source)):
             self.currentChar = self.source[self.current]
             try:
@@ -22,6 +31,7 @@ class Tokenizer:
 
     def retreat(self):
         self.current -= 1
+        self.col -= 1
         if (self.current > 0):
             self.currentChar = self.source[self.current]
             try:
@@ -31,46 +41,58 @@ class Tokenizer:
         else:
             self.currentChar = None
 
+    def insertInfoObject(self):
+        self.tokenInfo.append({"Line": self.line, "Col": self.col})
+
+    def append(self, token):
+        self.tokens.append(token)
+        self.tokenInfo[len(self.tokenInfo)-1]["Token"] = token
+
     def tokenize(self):
         while (self.currentChar is not None):
 
-            if (self.currentChar == " "):
+            if (self.currentChar == " " or self.currentChar == "\n"):
                 self.advance()
                 continue
 
             if (self.currentChar in '{(,)}=;'):
-                self.tokens.append(self.currentChar)
+                self.insertInfoObject()
+                self.append(self.currentChar)
                 self.advance()
                 continue
 
             if (self.currentChar == '-' and self.nextChar == '>'):
-                self.tokens.append(self.currentChar+self.nextChar)
+                self.insertInfoObject()
+                self.append(self.currentChar+self.nextChar)
                 self.advance()
                 self.advance()
                 continue
 
             if (self.currentChar in '-+' and re.match(r"[0-9]$", self.nextChar)):
+                self.insertInfoObject()
                 numericalToken = self.currentChar
                 self.advance()
                 numericalToken += self.currentChar
                 while (re.match(r"[-+][0-9]+$", numericalToken)):
                     self.advance()
                     numericalToken += self.currentChar
-                self.tokens.append(numericalToken[:len(numericalToken)-1])
+                self.append(numericalToken[:len(numericalToken)-1])
                 continue
             elif (self.currentChar in "+-"):
-                self.tokens.append(self.currentChar)
+                self.insertInfoObject()
+                self.append(self.currentChar)
                 self.advance()
                 continue
 
             if (self.currentChar == '"'):
+                self.insertInfoObject()
                 stringToken = self.currentChar
                 self.advance()
                 while (self.currentChar != '"'):
                     stringToken += self.currentChar
                     self.advance()
                 stringToken += self.currentChar
-                self.tokens.append(stringToken)
+                self.append(stringToken)
                 self.advance()
                 continue
 
@@ -83,37 +105,25 @@ class Tokenizer:
             if (self.currentChar == '/' and self.nextChar == '*'):
                 self.advance()
                 self.advance()
-                while (not (self.currentChar == '*' and self.nextChar == '/')):
+                while (self.currentChar != '*' and self.nextChar != '/'):
                     self.advance()
                 self.advance()
                 self.advance()
                 continue
 
             if (self.currentChar == '@' and (re.match(r"@[a-zA-Z_]+$", self.currentChar+self.nextChar))):
+                self.insertInfoObject()
                 varToken = self.currentChar
                 self.advance()
                 varToken += self.currentChar
                 while (re.match(r"@[a-zA-Z_]+[0-9]*[a-zA-Z_]*$", varToken)):
                     self.advance()
                     varToken += self.currentChar
-                self.tokens.append(varToken[:len(varToken)-1])
+                self.append(varToken[:len(varToken)-1])
                 continue
             elif (self.currentChar == '@' and not (re.match(r"@[a-zA-Z_]+$", self.currentChar+self.nextChar))):
-                self.tokens.append(self.currentChar)
-                self.advance()
-                continue
-
-            if (self.currentChar == '$' and (re.match(r"[$][a-zA-Z_]+$", self.currentChar+self.nextChar))):
-                varToken = self.currentChar
-                self.advance()
-                varToken += self.currentChar
-                while (re.match(r"[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$", varToken)):
-                    self.advance()
-                    varToken += self.currentChar
-                self.tokens.append(varToken[:len(varToken)-1])
-                continue
-            elif (self.currentChar == '$' and not (re.match(r"[$][a-zA-Z_]+$", self.currentChar+self.nextChar))):
-                self.tokens.append(self.currentChar)
+                self.insertInfoObject()
+                self.append(self.currentChar)
                 self.advance()
                 continue
 
@@ -122,6 +132,7 @@ class Tokenizer:
                 continue
 
             if (self.currentChar != ' '):
+                self.insertInfoObject()
                 randomString = self.currentChar
                 self.advance()
                 while (self.currentChar != ' '):
@@ -130,11 +141,14 @@ class Tokenizer:
                         break
                     randomString += self.currentChar
                     self.advance()
-                self.tokens.append(randomString)
+                self.append(randomString)
                 self.advance()
                 continue
 
             self.advance()
-        print(self.tokens)
-        return self.tokens
 
+        # print(self.tokens)
+        # # print(self.tokenInfo)
+        # for i in range(len(self.tokenInfo)):
+        #     print(self.tokenInfo[i])
+        return self.tokenInfo
