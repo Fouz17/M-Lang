@@ -11,5 +11,5 @@ program = open(path,'r').read()
 
 lexer = Tokenizer(program)
 tokens = lexer.tokenize()
-analyzer = Parser(tokens)
-analyzer.parse()
+# analyzer = Parser(tokens)
+# analyzer.parse()

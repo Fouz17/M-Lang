@@ -55,7 +55,7 @@ class Tokenizer:
                 self.advance()
                 continue
 
-            if (self.currentChar in '{(,)}=;'):
+            if (self.currentChar in '[{(,)}]=;'):
                 self.insertInfoObject()
                 self.append(self.currentChar)
                 self.advance()
@@ -135,8 +135,8 @@ class Tokenizer:
                 self.insertInfoObject()
                 randomString = self.currentChar
                 self.advance()
-                while (self.currentChar != ' '):
-                    if (self.currentChar in "{(,)}=;-@"):
+                while (self.currentChar != ' ' and self.currentChar is not None):
+                    if (self.currentChar in "[{(,)}]=;-@"):
                         self.retreat()
                         break
                     randomString += self.currentChar
@@ -149,6 +149,6 @@ class Tokenizer:
 
         # print(self.tokens)
         # # print(self.tokenInfo)
-        # for i in range(len(self.tokenInfo)):
-        #     print(self.tokenInfo[i])
+        for i in range(len(self.tokenInfo)):
+            print(self.tokenInfo[i])
         return self.tokenInfo
