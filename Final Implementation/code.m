@@ -1,11 +1,11 @@
-@x1[9][9][9] -> num = [0]
+const @x1 -> num = 1.015ab
+
 
 
 // $func1_(@x ->num,@xx -> str) -> num{
-//     loop(@x1 -> num = 50,1,+5){
-//         @x2 -> str = "32";
-//     };
-//     @x1 -> num = 98;
-//     @x2 -> str = "32";
 //     @x3 -> str = "98";
 // }
+interface x {
+    public:
+        $get()
+}
