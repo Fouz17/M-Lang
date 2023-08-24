@@ -56,8 +56,8 @@ class Tokenizer:
         self.tokenInfo[len(self.tokenInfo)-1]["Token"] = token
         if (token in self.reserved or token in self.punctuator
             or token in self.operator or re.match(r'^@[a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token)
-            or re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token) or re.match(r'[-+]?\d+\.\d+|\d+', token)
-                or re.match(r'".*"$', token) or re.match(r"'.*'$", token)):
+            or re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token) or re.match(r'[-+]?\d+\.\d+|\d+$', token)
+                or re.match(r'".*"$', token) or re.match(r"'.*'$", token) or re.match(r"[a-zA-Z_]+[0-9a-zA-Z_]*$", token)):
             self.tokenInfo[len(self.tokenInfo) -
                            1]["ClassPart"] = self.GetClass(token)
         else:
@@ -82,7 +82,9 @@ class Tokenizer:
             return "Identifier"
         if (re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token)):
             return "Identifier"
-        if (re.match(r'[-+]?\d+\.\d+|\d+', token)):
+        if(re.match(r"[a-zA-Z_]+[0-9a-zA-Z_]*$", token)):
+            return "Identifier"
+        if (re.match(r'[-+]?\d+\.\d+|\d+$', token)):
             return "Numeric"
         if (re.match(r'".*"$', token) or re.match(r"'.*'$", token)):
             return "String"
@@ -184,11 +186,11 @@ class Tokenizer:
                 self.advance()
                 while (self.currentChar != ' ' and self.currentChar is not None):
                     if (numeric):
-                        if (self.currentChar in "[{(,)}]=;-@\n\t"):
+                        if (self.currentChar in "[{(,)}]=;:-@\n\t"):
                             self.retreat()
                             break
                     else:
-                        if (self.currentChar in "[{(,)}]=;-@\n\t."):
+                        if (self.currentChar in "[{(,)}]=;:-@\n\t."):
                             self.retreat()
                             break
 
