@@ -11,9 +11,9 @@ class Tokenizer:
         self.nextChar = self.source[1]
         self.line = 1
         self.col = 1
-        self.reserved = ["Class", "abstract", "this", "num", "str", "loop", "abstract", "enum",
+        self.reserved = ["Class", "abstract", "this", "num", "str", "loop", "enum",
                          "when", "orWhen", "this", "other", "check", "public", "private", "new", "const",
-                         "override", "static", "interface"]
+                         "override", "static", "interface", "struct"]
         self.operator = ["+", "-", "/", "%", "*", "^", "=", "<", ">", "!"]
         self.punctuator = [";", ":",
                            "(", ")", "{", "}", ".", ",", "[", "]", "->", "."]
@@ -56,7 +56,8 @@ class Tokenizer:
         self.tokenInfo[len(self.tokenInfo)-1]["Token"] = token
         if (token in self.reserved or token in self.punctuator
             or token in self.operator or re.match(r'^@[a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token)
-            or re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token) or re.match(r'[-+]?\d+\.\d+|\d+$', token)
+            # or re.match(r'[-+]?\d+\.\d+|\d+$', token)
+            or re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token) or re.match(r'[0-9]+$', token) or re.match(r'[0-9]+.[0-9]+$', token)
                 or re.match(r'".*"$', token) or re.match(r"'.*'$", token) or re.match(r"[a-zA-Z_]+[0-9a-zA-Z_]*$", token)):
             self.tokenInfo[len(self.tokenInfo) -
                            1]["ClassPart"] = self.GetClass(token)
@@ -82,9 +83,9 @@ class Tokenizer:
             return "Identifier"
         if (re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token)):
             return "Identifier"
-        if(re.match(r"[a-zA-Z_]+[0-9a-zA-Z_]*$", token)):
+        if (re.match(r"[a-zA-Z_]+[0-9a-zA-Z_]*$", token)):
             return "Identifier"
-        if (re.match(r'[-+]?\d+\.\d+|\d+$', token)):
+        if (re.match(r'[0-9]+$', token) or re.match(r'[0-9]+.[0-9]+$', token)):
             return "Numeric"
         if (re.match(r'".*"$', token) or re.match(r"'.*'$", token)):
             return "String"
