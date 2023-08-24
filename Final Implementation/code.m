@@ -1,10 +1,10 @@
-const @x1 -> num = 1.015ab
 
 
+@x3 -> str = '98';
 
-// $func1_(@x ->num,@xx -> str) -> num{
-//     @x3 -> str = "98";
+/* $func1_(@x ->num,@xx -> str) -> num{
 // }
+*/
 interface x {
     public:
         $get()

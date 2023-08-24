@@ -57,7 +57,7 @@ class Tokenizer:
         if (token in self.reserved or token in self.punctuator
             or token in self.operator or re.match(r'^@[a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token)
             or re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token) or re.match(r'[-+]?\d+\.\d+|\d+', token)
-                or re.match(r'".*"$', token)):
+                or re.match(r'".*"$', token) or re.match(r"'.*'$", token)):
             self.tokenInfo[len(self.tokenInfo) -
                            1]["ClassPart"] = self.GetClass(token)
         else:
@@ -79,12 +79,12 @@ class Tokenizer:
         if (token in self.operator):
             return "Operator"
         if (re.match(r'^@[a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token)):
-            return "Variable"
+            return "Identifier"
         if (re.match(r'^[$][a-zA-Z_]+[0-9]*[a-zA-Z_]*$', token)):
-            return "Function"
+            return "Identifier"
         if (re.match(r'[-+]?\d+\.\d+|\d+', token)):
             return "Numeric"
-        if (re.match(r'".*"$', token)):
+        if (re.match(r'".*"$', token) or re.match(r"'.*'$", token)):
             return "String"
         # if (token in self.reserved):
         #     return "Reserved"
