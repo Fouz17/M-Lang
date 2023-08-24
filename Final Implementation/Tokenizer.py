@@ -13,7 +13,7 @@ class Tokenizer:
         self.col = 1
         self.reserved = ["Class", "abstract", "this", "num", "str", "loop", "enum",
                          "when", "orWhen", "this", "other", "check", "public", "private", "new", "const",
-                         "override", "static", "interface", "struct"]
+                         "override", "static", "interface", "struct", "try", "catch"]
         self.operator = ["+", "-", "/", "%", "*", "^", "=", "<", ">", "!"]
         self.punctuator = [";", ":",
                            "(", ")", "{", "}", ".", ",", "[", "]", "->", "."]
